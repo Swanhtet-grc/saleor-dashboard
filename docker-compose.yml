@@ -3,46 +3,51 @@ version: '2'
 services:
   api:
     ports:
-      - 8000:8000
+      - 9000:9000
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.dev
       args:
         STATIC_URL: '/static/'
     restart: unless-stopped
     networks:
       - saleor-backend-tier
-    depends_on:
-      - db
-      - redis
-      - jaeger
     volumes:
-      - ./saleor/:/app/saleor:Z
-      - ./templates/:/app/templates:Z
-      - ./tests/:/app/tests
-      # shared volume between worker and api for media
-      - saleor-media:/app/media
-    command: python manage.py runserver 0.0.0.0:8000
+      - ./:/app:cached
+      - /app/node_modules/
+    command: npm start -- --host 0.0.0.0
     env_file: common.env
     environment:
-      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_HOST=jaeger      
       - STOREFRONT_URL=http://localhost:3000/
       - DASHBOARD_URL=http://localhost:9000/
 
-  dashboard:
+
+  worker:
     build:
       context: .
       dockerfile: ./Dockerfile.dev
-    ports:
-      - 9000:9000
+      args:
+        STATIC_URL: '/static/'
     restart: unless-stopped
-    volumes:
-      - ./saleor-dashboard/:/app:cached
-      - /app/node_modules/
+    networks:
+      - saleor-backend-tier
     command: npm start -- --host 0.0.0.0
+    env_file: common.env
+    volumes:
+      - ./:/app:cached
+      - /app/node_modules/
 
 
+volumes:
+  saleor-db:
+    driver: local
+  saleor-redis:
+    driver: local
+  saleor-media:
 
 networks:
   saleor-backend-tier:
     driver: bridge
+  
+
