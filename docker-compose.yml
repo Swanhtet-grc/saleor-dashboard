@@ -2,8 +2,11 @@ version: '2'
 
 services:
   api:
+<<<<<<< HEAD
     ports:
       - 9000:9000
+=======
+>>>>>>> fece6203126de77be60ef7a76cf08897ee1fbd7d
     build:
       context: .
       dockerfile: ./Dockerfile.dev
@@ -13,9 +16,15 @@ services:
     networks:
       - saleor-backend-tier
     volumes:
+<<<<<<< HEAD
       - ./:/app:cached
       - /app/node_modules/
     command: npm start -- --host 0.0.0.0
+=======
+      - ./saleor/:/app/saleor:Z
+      - ./templates/:/app/templates:Z
+      - ./tests/:/app/tests
+>>>>>>> fece6203126de77be60ef7a76cf08897ee1fbd7d
     env_file: common.env
     environment:
       - JAEGER_AGENT_HOST=jaeger      
